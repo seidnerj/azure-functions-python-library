@@ -7,8 +7,8 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'azure-functions'
-copyright = '2023, Author'
-author = 'Author'
+copyright = 'Microsoft Corp.'
+author = 'Azure Functions Team'
 
 version = '1.14.0'
 release = '1.14.0'
