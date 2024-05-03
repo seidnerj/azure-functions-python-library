@@ -2747,7 +2747,7 @@ class Blueprint(TriggerApi, BindingApi, SettingsApi):
     pass
 
 
-class ExternalHttpFunctionApp(FunctionRegister, TriggerApi, ABC):
+class ExternalHttpFunctionApp(FunctionRegister, TriggerApi, BindingApi, SettingsApi, ABC):
     """Interface to extend for building third party http function apps."""
 
     @abc.abstractmethod
@@ -2776,7 +2776,6 @@ class AsgiFunctionApp(ExternalHttpFunctionApp):
         """
         super().__init__(auth_level=http_auth_level)
         self.middleware = AsgiMiddleware(app)
-        self._add_http_app(self.middleware)
         self.startup_task_done = False
 
     def __del__(self):
@@ -2802,7 +2801,7 @@ class AsgiFunctionApp(ExternalHttpFunctionApp):
         @self.http_type(http_type='asgi')
         @self.route(methods=(method for method in HttpMethod),
                     auth_level=self.auth_level,
-                    route="/{*route}")
+                    route="{*route}")
         async def http_app_func(req: HttpRequest, context: Context):
             if not self.startup_task_done:
                 success = await asgi_middleware.notify_startup()
@@ -2821,7 +2820,6 @@ class WsgiFunctionApp(ExternalHttpFunctionApp):
         :param app: wsgi app object.
         """
         super().__init__(auth_level=http_auth_level)
-        self._add_http_app(WsgiMiddleware(app))
 
     def _add_http_app(self,
                       http_middleware: Union[
@@ -2842,6 +2840,6 @@ class WsgiFunctionApp(ExternalHttpFunctionApp):
         @self.http_type(http_type='wsgi')
         @self.route(methods=(method for method in HttpMethod),
                     auth_level=self.auth_level,
-                    route="/{*route}")
+                    route="{*route}")
         def http_app_func(req: HttpRequest, context: Context):
             return wsgi_middleware.handle(req, context)
